@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teachable Machine Model</title>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+</head>
+<body>
+  <h1>Teachable Machine Test</h1>
+  <button onclick="init()">Start</button>
+  <video id="webcam" autoplay></video>
+  <div id="label"></div>
+
+  <script>
+    const URL = "model/"; // folder where your unzipped files are
+
+    let model, webcam, labelContainer;
+
+    async function init() {
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
+
+      model = await tmImage.load(modelURL, metadataURL);
+      webcam = new tmImage.Webcam(200, 200, true);
+      await webcam.setup();
+      await webcam.play();
+      document.getElementById("webcam").appendChild(webcam.canvas);
+
+      window.requestAnimationFrame(loop);
+    }
+
+    async function loop() {
+      webcam.update();
+      const prediction = await model.predict(webcam.canvas);
+      document.getElementById("label").innerText = prediction[0].className + " - " + prediction[0].probability.toFixed(2);
+      window.requestAnimationFrame(loop);
+    }
+  </script>
+</body>
+</html>
+	
